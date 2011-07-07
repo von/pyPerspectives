@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 """Unittests for NotaryResponse class"""
 
+import os.path
 import unittest
 
 class TestNotaryResponse(unittest.TestCase):
     """Tests for NotaryResponse class"""
 
+    my_path = os.path.dirname(os.path.abspath( __file__ ))
+
     def _load_response(self, filename):
         """Load response from given filename and return"""
         from Perspectives import NotaryResponse
-        with open(filename) as f:
+        with open(os.path.join(self.my_path, filename)) as f:
             response = NotaryResponse("".join(f.readlines()))
         return response
 
@@ -23,13 +26,15 @@ class TestNotaryResponse(unittest.TestCase):
             "response.3",
             "response.4"
             ]:
-            responses.append(self._load_response(filename))
+            responses.append(self._load_response(
+                    os.path.join(self.my_path, filename)))
         return responses
 
     def _load_notaries(self):
         """Load notaries and return Notaries instance"""
         from Perspectives import Notaries
-        return Notaries.from_file("./http_notary_list.txt")
+        return Notaries.from_file(
+            os.path.join(self.my_path, "./http_notary_list.txt"))
         
     def test_basic(self):
         """Test basic NotaryResponse and NotaryResponses creation"""

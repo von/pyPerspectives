@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 """Unittests for Notaries class"""
 
+import os.path
 import unittest
 
 class TestNotaries(unittest.TestCase):
     """Tests for Notaries class"""
 
+    my_path = os.path.dirname(os.path.abspath( __file__ ))
+
     def _load_notaries(self):
         from Perspectives import Notaries
-        return Notaries.from_file("./http_notary_list.txt")
+        return Notaries.from_file(
+            os.path.join(self.my_path, "./http_notary_list.txt"))
 
     def test_init(self):
         """Test basic creation of Notaries class"""
