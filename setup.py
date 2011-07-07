@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-# Todo: Add dependency for virtualboxapi
-# Todo: Sync verion here with version in util/pyvbox.py
 setup(
     name = "pyPerspectives",
     version = "0.1",
-    packages = find_packages(),
+    packages = [ "Perspectives" ],
     scripts = ['utils/notary-query.py'],
     test_suite = 'unittests',
 
