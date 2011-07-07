@@ -1,5 +1,4 @@
 # Make these classes available via 'from Perspectives import ...'
-from Checker import Checker
 from Exceptions import PerspectivesException
 from Exceptions import FingerprintException
 from Exceptions import NotaryException
