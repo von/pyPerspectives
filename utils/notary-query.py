@@ -5,7 +5,7 @@ import argparse
 import logging
 import sys
 
-from Perspectives import Checker, Fingerprint, \
+from Perspectives import Fingerprint, \
     PerspectivesException, Notaries, \
     Service, ServiceType
 
@@ -64,9 +64,6 @@ def main(argv=None):
     parser.add_argument('service_hostname', metavar='hostname',
                         type=str, nargs=1,
                         help='host about which to query')
-    parser.add_argument('service_fingerprint', metavar='fingerprint',
-                        type=str, nargs='?', default=None,
-                        help='test fingerprint against responses')
     args = parser.parse_args()
 
     output_handler.setLevel(args.output_level)
@@ -75,26 +72,17 @@ def main(argv=None):
                       args.service_port,
                       args.service_type)
 
-    if args.service_fingerprint is not None:
-        output.debug("Checking provided fingerprint against responses...")
-        checker = Checker(notaries_file=args.notaries_file)
-        fp = Fingerprint.from_string(args.service_fingerprint)
-        checker.check_seen_fingerprint(service, fp)
-        output.debug("Check successful.")
-        responses = checker.responses
+    notaries = Notaries.from_file(args.notaries_file)
+    output.debug("Read configuration for %s notaries from configuration %s" % (len(notaries), args.notaries_file))
+    responses = notaries.query(service, num=args.num_notaries)
+    if responses and len(responses):
+        for response in responses:
+            if args.output_xml:
+                output.info(response.xml)
+            else:
+                output.info(response)
     else:
-        notaries = Notaries.from_file(args.notaries_file)
-        output.debug("Read configuration for %s notaries from configuration %s" % (len(notaries), args.notaries_file))
-        responses = notaries.query(service, num=args.num_notaries)
-        if responses and len(responses):
-            for response in responses:
-                if args.output_xml:
-                    output.info(response.xml)
-                else:
-                    output.info(response)
-        else:
-            output.info("Failed to obtain any responses")
-
+        output.info("Failed to obtain any responses")
     
     return(0)
 
