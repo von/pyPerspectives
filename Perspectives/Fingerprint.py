@@ -21,7 +21,9 @@ class Fingerprint:
     def from_M2Crypto_X509(cls, cert):
         """Create Fingerprint from M2Crypto.X509.X509 instance."""
         # Data will be hex string without colons
-        fingerprint = cert.get_fingerprint()
+        # M2Crypto drops leading zeros, so we pad out with zeros to 32
+        # characters (==128 bits of MD5)
+        fingerprint = cert.get_fingerprint().rjust(32, "0")
         try:
             data = binascii.a2b_hex(fingerprint)
         except Exception as e:
