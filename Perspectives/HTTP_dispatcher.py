@@ -60,3 +60,9 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
         response = HTTPResponse(self.read_buffer)
         response.begin()  # Process the response
         return response
+
+    def handle_error(self):
+        type, value = sys.exc_info()[0:2]
+        self.logger.error("Error querying notary %s: %s" % (self.hostname,
+                                                            value))
+        sys.exc_clear()
