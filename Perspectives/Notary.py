@@ -20,6 +20,7 @@ from Service import ServiceType
 from Fingerprint import Fingerprint
 from HTTP_dispatcher import HTTP_dispatcher
 
+import timed_asyncore
 
 class Notaries(list):
     """Class for representing the set of trusted Notaries"""
@@ -57,13 +58,15 @@ class Notaries(list):
                 notaries.append(notary)
         return notaries
 
-    def query(self, service, num=0):
+    def query(self, service, num=0, timeout=3):
         """Query Notaries and return NotaryResponses instance
 
         For any Notary not responding, a None will be in the array.
 
         num specifies the number of Notaries to query. If 0, all notaries
-        are queried."""
+        are queried.
+
+        timeout is the timeout in seconds"""
         if num == 0:
             to_query = self
         else:
@@ -80,7 +83,7 @@ class Notaries(list):
                                 HTTP_dispatcher(notary.get_url(service),
                                                 map=map)))
         self.logger.debug("Calling asyncore.loop()")
-        asyncore.loop(map=map)
+        timed_asyncore.loop_with_timeout(timeout=timeout, map=map)
         self.logger.debug("asyncore.loop() done.")
         for notary, dispatcher in dispatchers:
             try:
