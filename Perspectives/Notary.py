@@ -24,7 +24,9 @@ from HTTP_dispatcher import HTTP_dispatcher
 class Notaries(list):
     """Class for representing the set of trusted Notaries"""
 
-    logger = logging.getLogger("Perspectives.Notary")
+    def __init__(self):
+        self.logger = logging.getLogger("Perspectives.Notary")
+        list.__init__(self)
 
     @classmethod
     def from_file(cls, file_path):
