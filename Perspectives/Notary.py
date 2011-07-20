@@ -247,7 +247,14 @@ class NotaryResponses(list):
         """Return the quorum duration of the given certificate in seconds.
 
         Quorum duration is the length of time at least quorum Notaries
-        believe the certificate was valid."""
+        believe the certificate was valid.
+
+        quorum specifies the number of notaries needed to make quorum
+
+        stale_limit: any response without a seen key fresher than this
+        limit is ignored inside this limit. I.e. a notary with a stale
+        response does not count towards quorum inside this period.
+        """
         if quorum > len(self):
             return(0)
 
