@@ -89,11 +89,14 @@ class Notaries(list):
             try:
                 response = dispatcher.get_response()
                 xml = response.read()
+                self.logger.debug("Validating response from %s (%d bytes)" % (notary, len(xml)))
                 response = NotaryResponse(xml)
-                self.logger.debug("Validating response from %s" % (notary))
                 notary.verify_response(response, service)
                 self.logger.debug("Response signature verified")
                 responses.append(response)
+            except EOFError as e:
+                self.logger.error("Failed to get response from %s: %s" % (notary, str(e)))
+                responses.append(None)
             except httplib.BadStatusLine as e:
                 self.logger.error("Failed to parse response from %s, bad status: %s" % (notary, e))
                 responses.append(None)

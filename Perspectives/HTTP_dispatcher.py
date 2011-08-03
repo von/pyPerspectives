@@ -34,6 +34,7 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
             port = int(port_str)
         asyncore.dispatcher_with_send.__init__(self, map=map)
         self.read_buffer = ResponseBuffer()
+        self.amount_read = 0
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         address = (hostname, port)
         self.logger.debug('connecting to %s', address)
@@ -54,9 +55,16 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
         data = self.recv(8192)
         self.logger.debug("Read %d bytes", len(data))
         self.read_buffer.write(data)
+        self.amount_read += len(data)
 
     def get_response(self):
+        """Return the parse XML response.
+
+        If no data was read, raises EOFError."""
         self.read_buffer.seek(0)
+        if self.amount_read == 0:
+            raise EOFError("Read zero bytes") 
+        self.logger.debug("Processing response of %d bytes" % self.amount_read)
         response = HTTPResponse(self.read_buffer)
         response.begin()  # Process the response
         return response
