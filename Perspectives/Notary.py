@@ -58,7 +58,7 @@ class Notaries(list):
                 notaries.append(notary)
         return notaries
 
-    def query(self, service, num=0, timeout=3):
+    def query(self, service, num=0, timeout=10):
         """Query Notaries and return NotaryResponses instance
 
         For any Notary not responding, a None will be in the array.
