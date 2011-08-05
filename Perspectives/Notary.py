@@ -5,8 +5,10 @@ import base64
 import httplib
 import logging
 import M2Crypto
+import pkgutil
 import random
 import re
+import StringIO
 import struct
 import time
 import urllib
@@ -28,6 +30,12 @@ class Notaries(list):
     def __init__(self):
         self.logger = logging.getLogger("Perspectives.Notary")
         list.__init__(self)
+
+    @classmethod
+    def default(cls):
+        """Return the default Notaries"""
+        data = pkgutil.get_data("Perspectives", "conf/http_notary_list.txt")
+        return cls.from_stream(StringIO.StringIO(data))
 
     @classmethod
     def from_file(cls, file_path):

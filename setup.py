@@ -3,8 +3,11 @@ from setuptools import setup, find_packages
 
 setup(
     name = "pyPerspectives",
-    version = "0.1",
+    version = "0.2",
     packages = [ "Perspectives" ],
+    package_data = { "Perspectives" : [
+            "conf/http_notary_list.txt",
+            ] },
     scripts = ['utils/notary-query.py'],
     test_suite = 'unittests',
 
