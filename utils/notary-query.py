@@ -49,7 +49,7 @@ def main(argv=None):
                         help="specify number of notaries to query (0=All)",
                         metavar="num")
     parser.add_argument("-N", "--notaries-file",
-                        type=str, default="./http_notary_list.txt",
+                        type=str, default=None,
                         help="specify notaries file", metavar="filename")
     parser.add_argument("-p", "--port", dest="service_port",
                         type=int, default=443,
@@ -72,8 +72,14 @@ def main(argv=None):
                       args.service_port,
                       args.service_type)
 
-    notaries = Notaries.from_file(args.notaries_file)
-    output.debug("Read configuration for %s notaries from configuration %s" % (len(notaries), args.notaries_file))
+    if args.notaries_file:
+        output.debug("Reading notaries from %s" % args.notaries_file)
+        notaries = Notaries.from_file(args.notaries_file)
+    else:
+        output.debug("Using default notaries")
+        notaries = Notaries.default()
+    output.debug("Have %d notaries" % len(notaries))
+
     responses = notaries.query(service, num=args.num_notaries)
     if responses and len(responses):
         for response in responses:
