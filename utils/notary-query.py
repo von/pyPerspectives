@@ -83,10 +83,11 @@ def main(argv=None):
     responses = notaries.query(service, num=args.num_notaries)
     if responses and len(responses):
         for response in responses:
-            if args.output_xml:
-                output.info(response.xml)
-            else:
-                output.info(response)
+            if response:
+                if args.output_xml:
+                    output.info(response.xml)
+                else:
+                    output.info(response)
     else:
         output.info("Failed to obtain any responses")
     
