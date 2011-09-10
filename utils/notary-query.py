@@ -9,6 +9,36 @@ from Perspectives import Fingerprint, \
     PerspectivesException, Notaries, \
     Service, ServiceType
 
+def normal_query(notaries, service, output, args):
+    responses = notaries.query(service, num=args.num_notaries)
+    output_responses(responses, output, args)
+    return(0)
+
+def twisted_query(notaries, service, output, args):
+    from twisted.internet import reactor
+    d = notaries.defered_query(service, num=args.num_notaries)
+    d.addCallback(output_responses, output, args)
+    d.addCallback(twisted_query_done)
+    reactor.run()
+    return(0)
+
+def twisted_query_done(ignored):
+    """Called at end of twisted callback chain to stop reactor."""
+    from twisted.internet import reactor
+    reactor.stop()
+
+def output_responses(responses, output, args):
+    if responses and len(responses):
+        output.info("Responses:")
+        for response in responses:
+            if response:
+                if args.output_xml:
+                    output.info(response.xml)
+                else:
+                    output.info(response)
+    else:
+        output.info("Failed to obtain any responses")
+
 def main(argv=None):
     # Do argv default this way, as doing it in the functional
     # declaration sets it at compile time.
@@ -57,6 +87,9 @@ def main(argv=None):
     parser.add_argument("-t", "--type", dest="service_type",
                         type=int, default=ServiceType.SSL,
                         help="specify service type", metavar="type")
+    parser.add_argument("-T", "--twisted",
+                        default=False, action="store_true",
+                        help="query using twisted")
     parser.add_argument("-x", "--xml",
                         dest="output_xml", action="store_const", const=True,
                         default=False,
@@ -72,24 +105,24 @@ def main(argv=None):
                       args.service_port,
                       args.service_type)
 
+    if args.twisted:
+        output.info("Using twisted version")
+        from Perspectives.TwistedNotary import TwistedNotaries
+        notaries_class = TwistedNotaries
+        query_func = twisted_query
+    else:
+        notaries_class = Notaries
+        query_func = normal_query
+
     if args.notaries_file:
         output.debug("Reading notaries from %s" % args.notaries_file)
-        notaries = Notaries.from_file(args.notaries_file)
+        notaries = notaries_class.from_file(args.notaries_file)
     else:
         output.debug("Using default notaries")
-        notaries = Notaries.default()
+        notaries = notaries_class.default()
     output.debug("Have %d notaries" % len(notaries))
 
-    responses = notaries.query(service, num=args.num_notaries)
-    if responses and len(responses):
-        for response in responses:
-            if response:
-                if args.output_xml:
-                    output.info(response.xml)
-                else:
-                    output.info(response)
-    else:
-        output.info("Failed to obtain any responses")
+    query_func(notaries, service, output, args)
     
     return(0)
 
