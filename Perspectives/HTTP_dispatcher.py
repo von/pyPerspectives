@@ -14,6 +14,7 @@ from httplib import HTTPResponse
 import logging
 import socket
 from StringIO import StringIO
+import sys
 import urlparse
 
 class ResponseBuffer(StringIO):
@@ -27,16 +28,16 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
         self.logger = logging.getLogger("HTTP_dispatcher")
         self.parsed_url = urlparse.urlparse(url)
         if self.parsed_url.netloc.find(":") == -1:
-            hostname = self.parsed_url.netloc
-            port = 80
+            self.hostname = self.parsed_url.netloc
+            self.port = 80
         else:
-            hostname, port_str = self.parsed_url.netloc.split(":")
-            port = int(port_str)
+            self.hostname, port_str = self.parsed_url.netloc.split(":")
+            self.port = int(port_str)
         asyncore.dispatcher_with_send.__init__(self, map=map)
         self.read_buffer = ResponseBuffer()
         self.amount_read = 0
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        address = (hostname, port)
+        address = (self.hostname, self.port)
         self.logger.debug('connecting to %s', address)
         self.connect(address)
 
