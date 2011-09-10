@@ -42,11 +42,11 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
         self.connect(address)
 
     def handle_connect(self):
-        self.logger.debug("Connected. Sending GET command.")
+        self.logger.debug("%s: Connected. Sending GET command." % self.hostname)
         self.send("GET %s HTTP/1.0\r\n\r\n" % (self.url))
 
     def handle_close(self):
-        self.logger.debug("Closed.")
+        self.logger.debug("%s: Closed." % self.hostname)
         self.close()
     
     def readable(self):
@@ -54,7 +54,7 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
 
     def handle_read(self):
         data = self.recv(8192)
-        self.logger.debug("Read %d bytes", len(data))
+        self.logger.debug("%s: Read %d bytes" % (self.hostname, len(data)))
         self.read_buffer.write(data)
         self.amount_read += len(data)
 
@@ -65,13 +65,13 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
         self.read_buffer.seek(0)
         if self.amount_read == 0:
             raise EOFError("Read zero bytes") 
-        self.logger.debug("Processing response of %d bytes" % self.amount_read)
+        self.logger.debug("%s: Processing response of %d bytes" % (self.hostname, self.amount_read))
         response = HTTPResponse(self.read_buffer)
         response.begin()  # Process the response
         return response
 
     def handle_error(self):
         type, value = sys.exc_info()[0:2]
-        self.logger.error("Error querying notary %s: %s" % (self.hostname,
-                                                            value))
+        self.logger.error("%s: Error: %s" % (self.hostname,
+                                                 value))
         sys.exc_clear()
