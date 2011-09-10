@@ -25,7 +25,7 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
 
     def __init__(self, url, map=None):
         self.url = url
-        self.logger = logging.getLogger("HTTP_dispatcher")
+        self.logger = logging.getLogger("Perspectives.HTTP_dispatcher")
         self.parsed_url = urlparse.urlparse(url)
         if self.parsed_url.netloc.find(":") == -1:
             self.hostname = self.parsed_url.netloc
