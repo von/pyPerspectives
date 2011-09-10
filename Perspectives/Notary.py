@@ -142,6 +142,7 @@ class Notary:
         self.hostname = hostname
         self.port = port
         self.public_key = public_key
+        self.logger = logging.getLogger("Perspectives.Notary")
 
     def __str__(self):
         return "Notary at %s port %s" % (self.hostname, self.port)
