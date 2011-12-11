@@ -1,6 +1,7 @@
 """Class for representing a certificate fingerprint"""
 
 import binascii
+import M2Crypto
 
 from Exceptions import FingerprintException
 
@@ -29,6 +30,12 @@ class Fingerprint:
         except Exception as e:
             raise FingerprintException("Error parsing fingerprint \"%s\": %s" % (fingerprint, str(e)))
         return cls(data)
+
+    @classmethod
+    def from_certificate_PEM(cls, pem):
+        """Create Fingerprint from certificate in PEM format."""
+        cert = M2Crypto.X509.load_cert_string(pem)
+        return cls.from_M2Crypto_X509(cert)
 
     def __str__(self, sep=":"):
         return sep.join([binascii.b2a_hex(b) for b in self.data])
