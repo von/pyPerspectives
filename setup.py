@@ -6,7 +6,7 @@ except:
 
 setup(
     name = "pyPerspectives",
-    version = "0.3",
+    version = "0.4",
     packages = [ "Perspectives" ],
     package_data = { "Perspectives" : [
             "conf/http_notary_list.txt",
