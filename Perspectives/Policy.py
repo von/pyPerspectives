@@ -2,8 +2,6 @@
 
 import logging
 
-import Notary
-
 class PolicyException(Exception):
     """Policy check failed"""
     pass
