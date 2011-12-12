@@ -32,8 +32,8 @@ class TestNotaryResponse(unittest.TestCase):
 
     def _load_notaries(self):
         """Load notaries and return Notaries instance"""
-        from Perspectives import Notaries
-        return Notaries.from_file(
+        from Perspectives import NotaryParser
+        return NotaryParser().parse_file(
             os.path.join(self.my_path, "./http_notary_list.txt"))
         
     def test_basic(self):

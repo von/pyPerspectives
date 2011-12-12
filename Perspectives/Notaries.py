@@ -1,9 +1,7 @@
 """Notaries: List of Notary instances"""
 import httplib
 import logging
-import pkgutil
 import random
-import StringIO
 
 from Notary import Notary
 from Exceptions import NotaryException
@@ -19,41 +17,6 @@ class Notaries(list):
     def __init__(self):
         self.logger = logging.getLogger("Perspectives.Notary")
         list.__init__(self)
-
-    @classmethod
-    def default(cls):
-        """Return the default Notaries"""
-        data = pkgutil.get_data("Perspectives", "conf/http_notary_list.txt")
-        return cls.from_stream(StringIO.StringIO(data))
-
-    @classmethod
-    def from_file(cls, file_path):
-        """Return Notaries described in file.
-
-        See from_stream() for expected format."""
-        with file(file_path, "r") as f:
-            notaries = cls.from_stream(f)
-        return notaries
-
-    @classmethod
-    def from_stream(cls, stream):
-        """Return Notaries described in given stream.
-
-        Expected format for each Notary is:
-        # Lines starting with '#' are comments and ignored
-        <hostname>:<port>
-        -----BEGIN PUBLIC KEY-----
-        <multiple lines of Base64-encoded data>
-        -----END PUBLIC KEY----
-        """
-        notaries = cls()
-        while True:
-            notary = cls.NotaryClass.from_stream(stream)
-            if notary is None:  # EOF
-                break
-            else:
-                notaries.append(notary)
-        return notaries
 
     def query(self, service, num=0, timeout=10):
         """Query Notaries and return NotaryResponses instance

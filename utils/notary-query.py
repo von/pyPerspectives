@@ -5,8 +5,8 @@ import argparse
 import logging
 import sys
 
-from Perspectives import Fingerprint, \
-    PerspectivesException, Notaries, \
+from Perspectives import default_notaries, Fingerprint, \
+    PerspectivesException, Notaries, NotaryParser, \
     Service, ServiceType
 
 def normal_query(notaries, service, output, args):
@@ -116,10 +116,10 @@ def main(argv=None):
 
     if args.notaries_file:
         output.debug("Reading notaries from %s" % args.notaries_file)
-        notaries = notaries_class.from_file(args.notaries_file)
+        notaries = NotaryParser().parse_file(args.notaries_file)
     else:
         output.debug("Using default notaries")
-        notaries = notaries_class.default()
+        notaries = default_notaries()
     output.debug("Have %d notaries" % len(notaries))
 
     query_func(notaries, service, output, args)

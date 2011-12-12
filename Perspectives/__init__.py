@@ -1,4 +1,5 @@
 # Make these classes available via 'from Perspectives import ...'
+from default_notaries import default_notaries
 from Exceptions import PerspectivesException
 from Exceptions import FingerprintException
 from Exceptions import NotaryException
@@ -8,6 +9,7 @@ from Exceptions import NotaryResponseBadSignature
 from Fingerprint import Fingerprint
 from Notary import Notary
 from Notaries import Notaries
+from NotaryParser import NotaryParser
 from NotaryResponse import NotaryResponse
 from NotaryResponse import ServiceKey
 from NotaryResponses import NotaryResponses
