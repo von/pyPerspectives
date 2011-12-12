@@ -10,6 +10,7 @@ from Exceptions import NotaryException
 from Exceptions import NotaryResponseBadSignature
 from Exceptions import NotaryResponseException
 from Exceptions import NotaryUnknownServiceException
+from Notary_dispatcher import Notary_dispatcher
 from NotaryResponse import NotaryResponse
 
 class Notary:
@@ -40,6 +41,11 @@ class Notary:
         response = "".join(stream.readlines())
         stream.close()
         return NotaryResponse(response)
+
+    def get_dispatcher(self, service, dispatcher_map=None):
+        """Return Notary_dispatcher to query Notary for given service"""
+        url = self.get_url(service)
+        return Notary_dispatcher(url, dispatcher_map)
 
     def get_url(self, service):
         """Return the URL to use to query for the given service"""

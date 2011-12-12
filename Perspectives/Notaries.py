@@ -5,7 +5,6 @@ import pkgutil
 import random
 import StringIO
 
-from HTTP_dispatcher import HTTP_dispatcher
 from Notary import Notary
 from Exceptions import NotaryException
 from NotaryResponse import NotaryResponse
@@ -77,18 +76,14 @@ class Notaries(list):
         map = {}
         for notary in to_query:
             self.logger.debug("Querying %s about %s..." % (notary, service))
-            dispatchers.append((notary,
-                                HTTP_dispatcher(notary.get_url(service),
-                                                map=map)))
+            dispatchers.append((notary, notary.get_dispatcher(service, map)))
         self.logger.debug("Calling asyncore.loop()")
         timed_asyncore.loop_with_timeout(timeout=timeout, map=map)
         self.logger.debug("asyncore.loop() done.")
         for notary, dispatcher in dispatchers:
             try:
                 response = dispatcher.get_response()
-                xml = response.read()
-                self.logger.debug("Validating response from %s (%d bytes)" % (notary, len(xml)))
-                response = NotaryResponse(xml)
+                self.logger.debug("Validating response from %s" % notary)
                 notary.verify_response(response, service)
                 self.logger.debug("Response signature verified")
                 responses.append(response)
