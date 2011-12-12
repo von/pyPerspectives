@@ -1,10 +1,10 @@
 """Versions of Perspectives classess that use twisted"""
 
 import logging
+import random
 
 import twisted.internet
 from twisted.web.client import getPage
-from twisted.web.http_headers import Headers
 
 from . import Notary, NotaryResponse, NotaryResponses, Notaries
 
