@@ -6,10 +6,11 @@ from Exceptions import NotaryResponseException
 from Exceptions import NotaryUnknownServiceException
 from Exceptions import NotaryResponseBadSignature
 from Fingerprint import Fingerprint
-from Notary import Notary, Notaries
-from Notary import NotaryResponse, NotaryResponses
-from Notary import NotaryResponseBadSignature
-from Notary import ServiceKey
+from Notary import Notary
+from Notaries import Notaries
+from NotaryResponse import NotaryResponse
+from NotaryResponse import ServiceKey
+from NotaryResponses import NotaryResponses
 from Service import Service, ServiceType
 
 # Avoid warnings about lack of defined handlers
