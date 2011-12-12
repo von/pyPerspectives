@@ -2,6 +2,7 @@
 
 from asyncore import poll, poll2, socket_map
 
+import select
 import time
 
 def loop_with_timeout(timeout=30.0,
