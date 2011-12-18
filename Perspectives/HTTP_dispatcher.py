@@ -75,3 +75,4 @@ class HTTP_dispatcher(asyncore.dispatcher_with_send):
         self.logger.error("%s: Error: %s" % (self.hostname,
                                                  value))
         sys.exc_clear()
+        self.close()
