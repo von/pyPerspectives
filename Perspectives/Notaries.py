@@ -60,7 +60,7 @@ class Notaries(list):
                 self.logger.error("Error validating response from %s: %s" % (notary, e))
                 responses.append(None)
             except Exception as e:
-                self.logger.error("Unknown error handling response from %s: %s" % (notary, e))
+                self.logger.exception("Unknown error handling response from %s: %s" % (notary, e))
                 responses.append(None)
         return responses
 
