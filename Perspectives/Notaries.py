@@ -44,10 +44,9 @@ class Notaries(list):
         self.logger.debug("asyncore.loop() done.")
         for notary, dispatcher in dispatchers:
             try:
+                self.logger.debug("Parsing response from %s" % notary)
                 response = dispatcher.get_response()
-                self.logger.debug("Validating response from %s" % notary)
-                notary.verify_response(response, service)
-                self.logger.debug("Response signature verified")
+                self.logger.debug("Response from %s parsed" % notary)
                 responses.append(response)
             except EOFError as e:
                 self.logger.error("Failed to get response from %s: %s" % (notary, str(e)))

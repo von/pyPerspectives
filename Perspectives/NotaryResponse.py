@@ -7,28 +7,17 @@ import xml.dom.minidom
 
 from Exceptions import NotaryResponseException
 from Fingerprint import Fingerprint
-from Service import ServiceType
 
 class NotaryResponse:
     """Response from a Notary"""
         
-    def __init__(self, xml):
+    def __init__(self, notary, version, keys, sig_type, sig):
         """Create a NotaryResponse instance"""
-        self.xml = xml
-        self._parse_xml()
-
-    def _parse_xml(self):
-        """Parse self.xml setting other attributes on self"""
-        self.dom = xml.dom.minidom.parseString(self.xml)
-        doc_element = self.dom.documentElement
-        if doc_element.tagName != "notary_reply":
-            raise NotaryResponseException("Unrecognized document element: %s" % (doc_element.tagName))
-        self.version = doc_element.getAttribute("version")
-        self.sig_type = doc_element.getAttribute("sig_type")
-        # Convert signature from base64 to raw form
-        self.sig = base64.standard_b64decode(doc_element.getAttribute("sig"))
-        keys = doc_element.getElementsByTagName("key")
-        self.keys = [NotaryResponseKey.from_dom(key) for key in keys]
+        self.notary = notary
+        self.version = version
+        self.keys = keys
+        self.sig_type = sig_type
+        self.sig = sig
 
     def bytes(self):
         """Return as bytes for signature verification
@@ -96,16 +85,9 @@ class ServiceKey:
 class NotaryResponseKey(ServiceKey):
     """Representation of a Key in a Notary Response"""
 
-    @classmethod
-    def from_dom(cls, dom):
-        """Create NotaryResponseKey from dom instance"""
-        if dom.tagName != "key":
-            raise NotaryResponseException("Unrecognized key element: %s" % (dom.tagName))
-        type = ServiceType.from_string(dom.getAttribute("type"))
-        key = cls.from_string(type, dom.getAttribute("fp"))
-        key.timespans = [NotaryResponseTimeSpan(e)
-                         for e in dom.getElementsByTagName("timestamp")]
-        return key
+    def __init__(self, type, fingerprint, timespans):
+        ServiceKey.__init__(self, type, fingerprint)
+        self.timespans = timespans
 
     def bytes(self):
         """Return as bytes for signature verification
@@ -142,12 +124,10 @@ class NotaryResponseKey(ServiceKey):
 class NotaryResponseTimeSpan:
     """Time span (Timestamp) from a Notary response"""
 
-    def __init__(self, dom):
-        """Create NoraryResponseTimeSpan from dom"""
-        if dom.tagName != "timestamp":
-            raise NotaryResponseException("Unrecognized timespan element: %s" % (dom.tagName))
-        self.start = int(dom.getAttribute("start"))
-        self.end = int(dom.getAttribute("end"))
+    def __init__(self, start, end):
+        """Create NotaryResponseTimeSpan from dom"""
+        self.start = start
+        self.end = end
 
     def bytes(self):
         """Return as bytes for signature verification

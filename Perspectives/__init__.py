@@ -13,6 +13,7 @@ from NotaryParser import NotaryParser
 from NotaryResponse import NotaryResponse
 from NotaryResponse import ServiceKey
 from NotaryResponses import NotaryResponses
+from Protocol import Protocol
 from Service import Service, ServiceType
 
 # Avoid warnings about lack of defined handlers
