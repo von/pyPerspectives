@@ -5,7 +5,6 @@ import random
 
 from Notary import Notary
 from Exceptions import NotaryException
-from NotaryResponse import NotaryResponse
 from NotaryResponses import NotaryResponses
 import timed_asyncore
 
