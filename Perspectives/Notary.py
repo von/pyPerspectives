@@ -39,6 +39,26 @@ class Notary:
         stream.close()
         return protocol.parse_response(response)
 
+    def defered_query(self, service):
+        """Query Notary. Returns a Deferred instance.
+
+        For CallBacks, the argument will be a NotaryResponse instance.
+        For ErrBacks, the Failure will have a notary attribute being the Notary.
+
+        For ErrBack, the Failure will have a notary attribute being the Notary."""
+        from twisted.web.client import getPage
+        protocol = self.get_protocol(service)
+        url = protocol.get_url()
+        d = getPage(url)
+        # Convert raw response into NotaryResponse before return to our caller
+        d.addCallback(protocol.parse_response)
+        # For Errback, add Notary to Failure
+        def _augment_failure(err):
+            err.notary = self
+            return err
+        d.addErrback(_augment_failure)
+        return d
+
     def get_dispatcher(self, service, dispatcher_map=None):
         """Return Notary_dispatcher to query Notary for given service"""
         return Notary_dispatcher(self, service, dispatcher_map)

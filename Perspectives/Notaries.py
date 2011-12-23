@@ -62,6 +62,32 @@ class Notaries(list):
                 responses.append(None)
         return responses
 
+    def deferred_query(self, service, num=0):
+        """Make a deferred twisted query for each protocol returning a list of Deferred.
+
+        For CallBacks, the argument will be a NotaryResponse instance.
+        For ErrBacks, the Failure will have a notary attribute being the Notary.
+
+        Returns a list of Deferred instead of a DeferredList to allow for timeouts.
+"""
+        if num == 0:
+            to_query = self
+        else:
+            if num > len(self):
+                raise ValueError(
+                    "Too many notaries requested (%s > %s)" % (num, len(self)))
+            to_query = random.sample(self, num)
+        deferreds = [n.defered_query(service) for n in to_query]
+        return deferreds
+
+    @classmethod
+    def _deferred_query_callback(cls, list):
+        responses = NotaryResponses([])
+        for success, response in list:
+            if success:
+                responses.append(response)
+        return responses
+
     def find_notary(self, hostname, port=None):
         """Find notary inlist.
 

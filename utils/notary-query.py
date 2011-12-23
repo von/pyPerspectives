@@ -9,6 +9,23 @@ from Perspectives import default_notaries, Fingerprint, \
     PerspectivesException, Notaries, NotaryParser, \
     Service, ServiceType
 
+class Counter:
+    """Count down to zero and then call a function."""
+
+    def __init__(self, initial_value, onZeroCall, *onZeroCallArgs):
+        self.value = initial_value
+        self.func = onZeroCall
+        self.func_args = onZeroCallArgs
+
+    def decrement(self, *ignored):
+        """Decrement our value, calling function if we hit zero.
+
+        Extra arguments are ignored."""
+        if self.value > 0:
+            self.value -= 1
+            if self.value == 0:
+                self.func(*self.func_args)
+
 def normal_query(notaries, service, output, args):
     responses = notaries.query(service, num=args.num_notaries)
     output_responses(responses, output, args)
@@ -16,28 +33,42 @@ def normal_query(notaries, service, output, args):
 
 def twisted_query(notaries, service, output, args):
     from twisted.internet import reactor
-    d = notaries.defered_query(service, num=args.num_notaries)
-    d.addCallback(output_responses, output, args)
-    d.addCallback(twisted_query_done)
+    deferreds = notaries.deferred_query(service, num=args.num_notaries)
+    for deferred in deferreds:
+        deferred.addCallback(output_response, output, args)
+        deferred.addErrback(output_err, output, args)
+    # Stop reactor when all responses received
+    counter = Counter(len(deferreds), twisted_query_done, output)
+    for deferred in deferreds:
+        deferred.addBoth(counter.decrement)
+    # ...or when timeout is reached
+    reactor.callLater(args.timeout, twisted_query_timeout, deferreds, output)
     reactor.run()
     return(0)
 
-def twisted_query_done(ignored):
+def twisted_query_done(output):
     """Called at end of twisted callback chain to stop reactor."""
     from twisted.internet import reactor
+    output.info("Query complete.")
     reactor.stop()
 
-def output_responses(responses, output, args):
-    if responses and len(responses):
-        output.info("Responses:")
-        for response in responses:
-            if response:
-                if args.output_xml:
-                    output.info(response.xml)
-                else:
-                    output.info(response)
+def twisted_query_timeout(deferreds, output):
+    """Called if query times out."""
+    from twisted.internet import reactor
+    for deferred in deferreds:
+        deferred.cancel()
+
+def output_response(response, output, args):
+    if args.output_xml:
+        output.info(response.xml)
     else:
-        output.info("Failed to obtain any responses")
+        output.info(response)
+
+def output_err(err, output, args):
+    msg = err.getErrorMessage()
+    if not msg:
+        msg = "Timed out"
+    output.error("Error querying %s: %s\n" % (err.notary, msg))
 
 def main(argv=None):
     # Do argv default this way, as doing it in the functional
@@ -81,6 +112,9 @@ def main(argv=None):
     parser.add_argument("-N", "--notaries-file",
                         type=str, default=None,
                         help="specify notaries file", metavar="filename")
+    parser.add_argument("-o", "--timeout",
+                        type=int, default=10,
+                        help="specify timeout in seconds", metavar="seconds")
     parser.add_argument("-p", "--port", dest="service_port",
                         type=int, default=443,
                         help="specify service port", metavar="port")
@@ -105,13 +139,12 @@ def main(argv=None):
                       args.service_port,
                       args.service_type)
 
+    notaries_class = Notaries
+
     if args.twisted:
         output.info("Using twisted version")
-        from Perspectives.TwistedNotary import TwistedNotaries
-        notaries_class = TwistedNotaries
         query_func = twisted_query
     else:
-        notaries_class = Notaries
         query_func = normal_query
 
     if args.notaries_file:
