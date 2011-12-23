@@ -50,8 +50,9 @@ class NotaryResponse:
                       [key.change_times() for key in self.keys])
 
     def __str__(self):
-        s = "Notary Response Version: %s Signature type: %s\n" % (self.version,
-                                                                      self.sig_type)
+        s = "Notary response from %s\n" % self.notary
+        s += "\tVersion: %s Signature type: %s\n" % (self.version,
+                                                     self.sig_type)
         s += "\tSig: %s\n" % (base64.standard_b64encode(self.sig))
         for key in self.keys:
             s += str(key)
