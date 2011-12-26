@@ -12,6 +12,17 @@ class Notary:
     """Class for representing Perspective Notary"""
 
     def __init__(self, hostname, port, public_key, protocol_class=Protocol):
+        """Create a Notary
+
+        hostname is the notary DNS name
+
+        port is the notary port
+
+        public_key is an M2Crypto.EVP.PKey instance
+
+        protocol_class is the class used to create Protocol instances
+        to contact the Notary.
+        """
         self.hostname = hostname
         self.port = port
         self.public_key = public_key
