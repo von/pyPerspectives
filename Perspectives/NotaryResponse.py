@@ -10,14 +10,22 @@ from Fingerprint import Fingerprint
 
 class NotaryResponse:
     """Response from a Notary"""
-        
-    def __init__(self, notary, version, keys, sig_type, sig):
+
+    # signature type mappings
+    SIG_TYPE_MAPPINGS = {
+        # Perspectives sig_type
+        u"rsa-md5" : "md5"
+        }
+
+    def __init__(self, notary, version, keys, sig_type, sig, raw_response):
         """Create a NotaryResponse instance"""
         self.notary = notary
         self.version = version
         self.keys = keys
-        self.sig_type = sig_type
+        self.sig_type = self.SIG_TYPE_MAPPINGS[sig_type] \
+            if self.SIG_TYPE_MAPPINGS.has_key(sig_type) else sig_type
         self.sig = sig
+        self.raw_response = raw_response
 
     def bytes(self):
         """Return as bytes for signature verification

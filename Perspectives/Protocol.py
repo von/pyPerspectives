@@ -55,7 +55,12 @@ class Protocol:
         sig = base64.standard_b64decode(doc_element.getAttribute("sig"))
         keys = doc_element.getElementsByTagName("key")
         keys = [self._parse_key(key) for key in keys]
-        response = NotaryResponse(self.notary, version, keys, sig_type, sig)
+        response = NotaryResponse(self.notary,
+                                  version,
+                                  keys,
+                                  sig_type,
+                                  sig,
+                                  xml_data)
         self.verify_response(response)
         return response
 
@@ -84,8 +89,7 @@ class Protocol:
         data = self._get_verify_data(response)
 
         notary_pub_key = self.notary.public_key
-        # Todo: Assuming MD5 here, should double check response.type
-        notary_pub_key.reset_context(md="md5")
+        notary_pub_key.reset_context(response.sig_type)
         notary_pub_key.verify_init()
         notary_pub_key.verify_update(data)
         result = notary_pub_key.verify_final(response.sig)
