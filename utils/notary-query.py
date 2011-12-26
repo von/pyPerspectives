@@ -57,8 +57,9 @@ def twisted_query_timeout(deferreds, output):
         deferred.cancel()
 
 def output_response(response, output, args):
-    if args.output_xml:
-        output.info(response.xml)
+    output.info("Response from %s:" % response.notary)
+    if args.output_raw:
+        output.info(response.raw_response)
     else:
         output.info(response)
 
@@ -116,16 +117,16 @@ def main(argv=None):
     parser.add_argument("-p", "--port", dest="service_port",
                         type=int, default=443,
                         help="specify service port", metavar="port")
+    parser.add_argument("-r", "--raw",
+                        dest="output_raw", action="store_const", const=True,
+                        default=False,
+                        help="output raw response")
     parser.add_argument("-t", "--type", dest="service_type",
                         type=int, default=ServiceType.SSL,
                         help="specify service type", metavar="type")
     parser.add_argument("-T", "--twisted",
                         default=False, action="store_true",
                         help="query using twisted")
-    parser.add_argument("-x", "--xml",
-                        dest="output_xml", action="store_const", const=True,
-                        default=False,
-                        help="output raw XML")
     parser.add_argument('service_hostname', metavar='hostname',
                         type=str, nargs=1,
                         help='host about which to query')
