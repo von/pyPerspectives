@@ -27,7 +27,10 @@ class Counter:
 
 def normal_query(notaries, service, output, args):
     responses = notaries.query(service, num=args.num_notaries)
-    output_responses(responses, output, args)
+    output.info("Received %d responses" % len(responses))
+    for response in responses:
+        if response:
+            output_response(response, output, args)
     return(0)
 
 def twisted_query(notaries, service, output, args):
