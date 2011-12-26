@@ -5,9 +5,8 @@ import argparse
 import logging
 import sys
 
-from Perspectives import default_notaries, Fingerprint, \
-    PerspectivesException, Notaries, NotaryParser, \
-    Service, ServiceType
+from Perspectives import default_notaries, \
+    NotaryParser, Service, ServiceType
 
 class Counter:
     """Count down to zero and then call a function."""
@@ -54,7 +53,6 @@ def twisted_query_done(output):
 
 def twisted_query_timeout(deferreds, output):
     """Called if query times out."""
-    from twisted.internet import reactor
     for deferred in deferreds:
         deferred.cancel()
 
@@ -138,8 +136,6 @@ def main(argv=None):
     service = Service(args.service_hostname[0],
                       args.service_port,
                       args.service_type)
-
-    notaries_class = Notaries
 
     if args.twisted:
         output.info("Using twisted version")
