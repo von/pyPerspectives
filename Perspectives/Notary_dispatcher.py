@@ -6,7 +6,7 @@ class Notary_dispatcher(HTTP_dispatcher):
 
     def __init__(self, notary, service, map=None):
         self.protocol = notary.get_protocol(service)
-        HTTP_dispatcher.__init__(self, self.protocol.get_url(), map)
+        HTTP_dispatcher.__init__(self, self.protocol.get_url(), map=map)
 
     def get_response(self):
         """Return NotaryResponse instance"""

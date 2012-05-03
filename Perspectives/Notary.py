@@ -11,7 +11,9 @@ from Protocol import Protocol
 class Notary:
     """Class for representing Perspective Notary"""
 
-    def __init__(self, hostname, port, public_key, protocol_class=Protocol):
+    def __init__(self, hostname, port, public_key,
+                 protocol_class=Protocol,
+                 dispatcher_class=Notary_dispatcher):
         """Create a Notary
 
         hostname is the notary DNS name
@@ -28,6 +30,7 @@ class Notary:
         self.public_key = public_key
         self.logger = logging.getLogger("Perspectives.Notary")
         self.protocol_class = protocol_class
+        self.dispatcher_class = dispatcher_class
 
     def __str__(self):
         return "%s notary at %s port %s" % (self.protocol_class.get_name(),
@@ -72,7 +75,7 @@ class Notary:
 
     def get_dispatcher(self, service, dispatcher_map=None):
         """Return Notary_dispatcher to query Notary for given service"""
-        return Notary_dispatcher(self, service, dispatcher_map)
+        return self.dispatcher_class(self, service, dispatcher_map)
 
     def get_protocol(self, service):
         """Return Protocol instance to query regarding service"""

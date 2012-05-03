@@ -5,8 +5,8 @@ import argparse
 import logging
 import sys
 
-from Perspectives import default_notaries, \
-    NotaryParser, Service, ServiceType
+import Convergence
+import Perspectives
 
 class Counter:
     """Count down to zero and then call a function."""
@@ -106,6 +106,15 @@ def main(argv=None):
                                  action="store_const", const=logging.WARNING,
                                  dest="output_level",
                                  help="run quietly")
+    notary_group = parser.add_mutually_exclusive_group()
+    notary_group.add_argument("-C", "--convergence",
+                                action='store_const', const=True,
+                                dest="convergence_only", default=False,
+                                help="Use only Convergence notaries")
+    notary_group.add_argument("-P", "--perspectives",
+                                action='store_const', const=True,
+                                dest="perspectives_only", default=False,
+                                help="Use only Perspectives notaries")
     parser.add_argument("--version", action="version", version="%(prog)s 1.0")
     parser.add_argument("-n", "--num_notaries",
                         type=int, default=0,
@@ -125,7 +134,7 @@ def main(argv=None):
                         default=False,
                         help="output raw response")
     parser.add_argument("-t", "--type", dest="service_type",
-                        type=int, default=ServiceType.SSL,
+                        type=int, default=Perspectives.ServiceType.SSL,
                         help="specify service type", metavar="type")
     parser.add_argument("-T", "--twisted",
                         default=False, action="store_true",
@@ -137,9 +146,9 @@ def main(argv=None):
 
     output_handler.setLevel(args.output_level)
 
-    service = Service(args.service_hostname[0],
-                      args.service_port,
-                      args.service_type)
+    service = Perspectives.Service(args.service_hostname[0],
+                                   args.service_port,
+                                   args.service_type)
 
     if args.twisted:
         output.info("Using twisted version")
@@ -148,11 +157,18 @@ def main(argv=None):
         query_func = normal_query
 
     if args.notaries_file:
+        # XXX Need some way of indicating convergence or perspectives notaries
         output.debug("Reading notaries from %s" % args.notaries_file)
-        notaries = NotaryParser().parse_file(args.notaries_file)
+        notaries = Perspectives.NotaryParser().parse_file(args.notaries_file)
     else:
-        output.debug("Using default notaries")
-        notaries = default_notaries()
+        notaries = Perspectives.Notaries()
+        if not args.convergence_only:
+            output.debug("Using default Perspectives notaries")
+            notaries.extend(Perspectives.default_notaries())
+        if not args.perspectives_only:
+            output.debug("Using default Convergence notaries")
+            notaries.extend(Convergence.default_notaries())
+
     output.debug("Have %d notaries" % len(notaries))
 
     query_func(notaries, service, output, args)

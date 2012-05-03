@@ -7,10 +7,15 @@ except:
 setup(
     name = "pyPerspectives",
     version = "0.4",
-    packages = [ "Perspectives" ],
-    package_data = { "Perspectives" : [
+    packages = [ "Perspectives", "Convergence" ],
+    package_data = {
+        "Perspectives" : [
             "conf/http_notary_list.txt",
-            ] },
+            ],
+        "Convergence" : [
+            "conf/thoughtcrime.notary",
+            ]
+        },
     scripts = ['utils/notary-query.py'],
     test_suite = 'unittests',
 

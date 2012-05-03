@@ -11,6 +11,8 @@ from Notary import Notary
 from Notaries import Notaries
 from NotaryParser import NotaryParser
 from NotaryResponse import NotaryResponse
+from NotaryResponse import NotaryResponseKey
+from NotaryResponse import NotaryResponseTimeSpan
 from NotaryResponse import ServiceKey
 from NotaryResponses import NotaryResponses
 from Protocol import Protocol
