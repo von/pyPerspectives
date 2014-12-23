@@ -6,7 +6,7 @@ except:
 
 setup(
     name = "pyPerspectives",
-    version = "0.4",
+    version = "0.5",
     packages = [ "Perspectives", "Convergence" ],
     package_data = {
         "Perspectives" : [

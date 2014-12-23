@@ -1,7 +1,9 @@
 """Notaries: List of Notary instances"""
 import httplib
 import logging
+import pkgutil
 import random
+import StringIO
 
 from Notary import Notary
 from Exceptions import NotaryException
@@ -16,6 +18,24 @@ class Notaries(list):
     def __init__(self):
         self.logger = logging.getLogger("Perspectives.Notary")
         list.__init__(self)
+
+    @staticmethod
+    def from_file(path):
+        """Read a set of notaries from a given file."""
+        from NotaryParser import NotaryParser  # Avoid import loop
+        parser = NotaryParser()
+        return parser.parse_file(path)
+
+    @staticmethod
+    def default():
+        """Return a default set of notaries.
+
+        This is the list from http_notary_list.txt included
+        with pyPerspectives."""
+        from NotaryParser import NotaryParser  # Avoid import loop
+        parser = NotaryParser()
+        data = pkgutil.get_data("Perspectives", "conf/http_notary_list.txt")
+        return parser.parse_stream(StringIO.StringIO(data))
 
     def query(self, service, num=0, timeout=10):
         """Query Notaries and return NotaryResponses instance
